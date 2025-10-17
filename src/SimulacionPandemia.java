@@ -75,14 +75,25 @@ public class SimulacionPandemia extends SimulacionBase {
     }
 
     private void asignarClientesACajas() {
+        // Crear una lista temporal para clientes que pueden ser asignados
+        List<Cliente> clientesAsignables = new ArrayList<>();
+
+        // Primero, identificar qué clientes han estado al menos 1 minuto en fila
+        for (Cliente cliente : filaUnica) {
+            int tiempoEnFila = tiempoActual - cliente.getTiempoLlegada();
+            if (tiempoEnFila >= 1) { // Mínimo 1 minuto en fila
+                clientesAsignables.add(cliente);
+            }
+        }
+
+        // Luego, asignar estos clientes a cajas disponibles
         for (Caja caja : cajas) {
-            // MODO PANDEMIA: Máximo 1 cliente en cola + 1 siendo atendido
-            if (caja.isAbierta() && caja.getTamanioCola() < 1 && !filaUnica.isEmpty()) {
-                Cliente cliente = filaUnica.poll();
-                if (cliente != null) {
-                    caja.agregarCliente(cliente);
-                    cliente.setTiempoEspera(tiempoActual - cliente.getTiempoLlegada());
-                }
+            // MODO PANDEMIA: Máximo 4 clientes en cola
+            if (caja.isAbierta() && caja.getTamanioCola() < 4 && !clientesAsignables.isEmpty()) {
+                Cliente cliente = clientesAsignables.remove(0);
+                filaUnica.remove(cliente); // Remover de la fila única
+                caja.agregarCliente(cliente);
+                cliente.setTiempoEspera(tiempoActual - cliente.getTiempoLlegada());
             }
         }
     }
