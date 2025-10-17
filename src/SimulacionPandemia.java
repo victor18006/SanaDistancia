@@ -1,16 +1,16 @@
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 public class SimulacionPandemia extends SimulacionBase {
     private Queue<Cliente> filaUnica;
     private int siguienteIdCliente;
-    private int proximaLlegada;
 
     public SimulacionPandemia() {
         super();
         this.filaUnica = new LinkedList<>();
         this.siguienteIdCliente = 1;
-        this.proximaLlegada = generarTiempoEntreLlegadas();
 
         for (int i = 0; i < 12; i++) {
             int x = 50 + (i % 6) * 180;
@@ -18,9 +18,7 @@ public class SimulacionPandemia extends SimulacionBase {
             cajas.add(new Caja(i + 1, x, y));
         }
 
-        for (int i = 0; i < 3; i++) {
-            cajas.get(i).setAbierta(true);
-        }
+        cajas.get(random.nextInt(12)).setAbierta(true); // CORREGIDO: 6 cajas
     }
 
     @Override
@@ -36,11 +34,11 @@ public class SimulacionPandemia extends SimulacionBase {
             caja.setTiempoSimulacionGlobal(tiempoActual);
         }
 
-        // Generar clientes
-        if (tiempoActual >= proximaLlegada && siguienteIdCliente <= 1000) {
+        // Generar clientes usando tiempo REAL
+        if (debeLlegarCliente() && siguienteIdCliente <= 1000) {
             Cliente nuevoCliente = new Cliente(siguienteIdCliente++, tiempoActual);
             filaUnica.add(nuevoCliente);
-            proximaLlegada = tiempoActual + generarTiempoEntreLlegadas();
+            programarProximaLlegada(); // Programar próxima llegada
         }
 
         asignarClientesACajas();
@@ -70,7 +68,7 @@ public class SimulacionPandemia extends SimulacionBase {
 
     private void asignarClientesACajas() {
         for (Caja caja : cajas) {
-            // ✅ MODO PANDEMIA: Máximo 1 cliente en cola + 1 siendo atendido
+            // MODO PANDEMIA: Máximo 1 cliente en cola + 1 siendo atendido
             if (caja.isAbierta() && caja.getTamanioCola() < 1 && !filaUnica.isEmpty()) {
                 Cliente cliente = filaUnica.poll();
                 if (cliente != null) {
@@ -91,5 +89,26 @@ public class SimulacionPandemia extends SimulacionBase {
     }
 
     public Queue<Cliente> getFilaUnica() { return filaUnica; }
-    public int getProximaLlegada() { return proximaLlegada; }
+
+    public String getEstadisticasDetalladas() {
+        StringBuilder stats = new StringBuilder();
+
+        for (Caja caja : cajas) {
+            stats.append("Caja ").append(caja.getId())
+                    .append(": ").append(caja.isAbierta() ? "ABIERTA" : "CERRADA")
+                    .append(" | Atendidos: ").append(caja.getClientesAtendidos())
+                    .append(" | Cola: ").append(caja.getTamanioCola())
+                    .append(" | Ocioso: ").append(caja.getTiempoOcioso()).append(" min")
+                    .append(" | Tiempo abierta: ").append(caja.getTiempoAbierta()).append(" min\n");
+        }
+
+        return stats.toString();
+    }
+
+    public List<Cliente> getClientesTerminados() {
+        List<Cliente> terminados = new ArrayList<>();
+        // En modo pandemia, no hay una lista específica de clientes terminados
+        // Podemos devolver una lista vacía o implementar lógica si es necesario
+        return terminados;
+    }
 }

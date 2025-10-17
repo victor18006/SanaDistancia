@@ -7,7 +7,6 @@ public class Cliente {
     private int tiempoServicio;
     private int tiempoEspera;
     private int tiempoInicioServicio;
-    private int tiempoRestanteServicio;
     private Color color;
     private EstadoCliente estado;
 
@@ -19,7 +18,6 @@ public class Cliente {
         this.id = id;
         this.tiempoLlegada = tiempoActual;
         this.tiempoServicio = generarTiempoServicio();
-        this.tiempoRestanteServicio = tiempoServicio;
         this.tiempoEspera = 0;
         this.tiempoInicioServicio = -1;
         this.estado = EstadoCliente.ESPERANDO_FILA;
@@ -36,14 +34,7 @@ public class Cliente {
         return new Color(rand.nextInt(200) + 55, rand.nextInt(200) + 55, rand.nextInt(200) + 55);
     }
 
-    public void actualizar() {
-        if (estado == EstadoCliente.SIENDO_ATENDIDO) {
-            tiempoRestanteServicio--;
-            if (tiempoRestanteServicio <= 0) {
-                estado = EstadoCliente.TERMINADO;
-            }
-        }
-    }
+    // ⚠️ ELIMINADO el método actualizar() - El control del tiempo lo hace la Caja
 
     public int getId() { return id; }
     public int getTiempoLlegada() { return tiempoLlegada; }
@@ -57,7 +48,6 @@ public class Cliente {
     public Color getColor() { return color; }
     public EstadoCliente getEstado() { return estado; }
     public void setEstado(EstadoCliente estado) { this.estado = estado; }
-    public int getTiempoRestanteServicio() { return tiempoRestanteServicio; }
 
     @Override
     public String toString() {

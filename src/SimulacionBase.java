@@ -12,6 +12,10 @@ public abstract class SimulacionBase {
     protected boolean pausada;
     protected boolean terminada;
 
+    // NUEVO: Control de tiempo entre llegadas con tiempo REAL
+    protected int tiempoUltimaLlegada;
+    protected int tiempoEntreLlegadas;
+
     public SimulacionBase() {
         this.cajas = new ArrayList<>();
         this.tiempoSimulacion = 600;
@@ -21,12 +25,29 @@ public abstract class SimulacionBase {
         this.random = new Random();
         this.pausada = false;
         this.terminada = false;
+
+        //Inicializar control de llegadas
+        this.tiempoUltimaLlegada = 0;
+        this.tiempoEntreLlegadas = generarTiempoEntreLlegadas();
     }
 
     public abstract void ejecutarPaso();
 
     protected int generarTiempoEntreLlegadas() {
-        return random.nextInt(2) == 0 ? 1 : 2; // 0.5-1 minuto (1-2 pasos de simulación)
+        //0.5-1 minuto en tiempo REAL (no contador que se reduce)
+        return random.nextInt(2) + 1; // 1-2 pasos = 0.5-1 minuto
+    }
+
+    //Método para verificar si debe llegar un cliente
+    protected boolean debeLlegarCliente() {
+        int tiempoDesdeUltimaLlegada = tiempoActual - tiempoUltimaLlegada;
+        return tiempoDesdeUltimaLlegada >= tiempoEntreLlegadas;
+    }
+
+    //Método para programar próxima llegada
+    protected void programarProximaLlegada() {
+        tiempoUltimaLlegada = tiempoActual;
+        tiempoEntreLlegadas = generarTiempoEntreLlegadas();
     }
 
     protected void abrirCajaSiEsNecesario() {
@@ -48,12 +69,19 @@ public abstract class SimulacionBase {
 
         // Si todas las cajas abiertas están llenas y hay cajas cerradas disponibles
         if (todasLlenas && cajasAbiertas < cajas.size()) {
+            // Crear lista de cajas cerradas disponibles
+            List<Caja> cajasCerradas = new ArrayList<>();
             for (Caja caja : cajas) {
                 if (!caja.isAbierta()) {
-                    caja.setAbierta(true);
-                    caja.setTiempoOcioso(0); // Reiniciar tiempo ocioso
-                    break; // Abrir solo una caja a la vez
+                    cajasCerradas.add(caja);
                 }
+            }
+
+            // Seleccionar una caja aleatoria de las cerradas
+            if (!cajasCerradas.isEmpty()) {
+                Caja cajaAleatoria = cajasCerradas.get(random.nextInt(cajasCerradas.size()));
+                cajaAleatoria.setAbierta(true);
+                cajaAleatoria.setTiempoOcioso(0); // Reiniciar tiempo ocioso
             }
         }
     }
@@ -75,4 +103,8 @@ public abstract class SimulacionBase {
     public List<Caja> getCajas() { return cajas; }
     public int getClientesAtendidosTotal() { return clientesAtendidosTotal; }
     public int getTiempoEsperaTotal() { return tiempoEsperaTotal; }
+
+    //Getters para el control de llegadas
+    public int getTiempoUltimaLlegada() { return tiempoUltimaLlegada; }
+    public int getTiempoEntreLlegadas() { return tiempoEntreLlegadas; }
 }

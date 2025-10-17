@@ -3,13 +3,11 @@ import java.util.List;
 
 public class SimulacionNormal extends SimulacionBase {
     private int siguienteIdCliente;
-    private int proximaLlegada;
     private List<Cliente> clientesEnSistema;
 
     public SimulacionNormal() {
         super();
         this.siguienteIdCliente = 1;
-        this.proximaLlegada = generarTiempoEntreLlegadas();
         this.clientesEnSistema = new ArrayList<>();
 
         // Configurar 12 cajas en 2 filas de 6 cajas cada una
@@ -19,10 +17,7 @@ public class SimulacionNormal extends SimulacionBase {
             cajas.add(new Caja(i + 1, x, y));
         }
 
-        // Abrir 2 cajas inicialmente (como en el código original)
-        for (int i = 0; i < 2; i++) {
-            cajas.get(i).setAbierta(true);
-        }
+        cajas.get(random.nextInt(12)).setAbierta(true);
     }
 
     @Override
@@ -38,12 +33,12 @@ public class SimulacionNormal extends SimulacionBase {
             caja.setTiempoSimulacionGlobal(tiempoActual);
         }
 
-        // Generar clientes continuamente
-        if (tiempoActual >= proximaLlegada && siguienteIdCliente <= 1000) {
+        // Generar clientes usando tiempo REAL
+        if (debeLlegarCliente() && siguienteIdCliente <= 1000) {
             Cliente nuevoCliente = new Cliente(siguienteIdCliente++, tiempoActual);
             clientesEnSistema.add(nuevoCliente);
             asignarClienteACaja(nuevoCliente);
-            proximaLlegada = tiempoActual + generarTiempoEntreLlegadas();
+            programarProximaLlegada(); // Programar próxima llegada
         }
 
         for (Caja caja : cajas) {
@@ -107,5 +102,24 @@ public class SimulacionNormal extends SimulacionBase {
     }
 
     public List<Cliente> getClientesEnSistema() { return clientesEnSistema; }
-    public int getProximaLlegada() { return proximaLlegada; }
+
+    public String getEstadisticasDetalladas() {
+        StringBuilder stats = new StringBuilder();
+
+        for (Caja caja : cajas) {
+            stats.append("Caja ").append(caja.getId())
+                    .append(": ").append(caja.isAbierta() ? "ABIERTA" : "CERRADA")
+                    .append(" | Atendidos: ").append(caja.getClientesAtendidos())
+                    .append(" | Cola: ").append(caja.getTamanioCola())
+                    .append(" | Ocioso: ").append(caja.getTiempoOcioso()).append(" min")
+                    .append(" | Tiempo abierta: ").append(caja.getTiempoAbierta()).append(" min\n");
+        }
+
+        return stats.toString();
+    }
+
+    public List<Cliente> getClientesTerminados() {
+        List<Cliente> terminados = new ArrayList<>();
+        return terminados;
+    }
 }

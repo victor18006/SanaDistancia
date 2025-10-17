@@ -18,7 +18,7 @@ public class Caja {
         this.clienteActual = null;
         this.tiempoOcioso = 0;
         this.clientesAtendidos = 0;
-        this.abierta = true;
+        this.abierta = false;
         this.x = x;
         this.y = y;
         this.tiempoSimulacionGlobal = 0;
@@ -45,12 +45,20 @@ public class Caja {
 
     public void actualizar() {
         if (abierta) {
-            tiempoAbierta++; // NUEVO: contar tiempo abierta
+            tiempoAbierta++; // Contar tiempo abierta
         }
+
         if (clienteActual != null) {
-            clienteActual.actualizar();
+            //Controlar tiempo de servicio REAL
+            int tiempoTranscurrido = tiempoSimulacionGlobal - clienteActual.getTiempoInicioServicio();
+
+            // Verificar si ya terminó de pagar (tiempo REAL)
+            if (tiempoTranscurrido >= clienteActual.getTiempoServicio()) {
+                clienteActual.setEstado(Cliente.EstadoCliente.TERMINADO);
+            }
+
+            // Si terminó, limpiar cliente actual
             if (clienteActual.getEstado() == Cliente.EstadoCliente.TERMINADO) {
-                // Cliente terminó, limpiar para que la simulación pueda contabilizar
                 clienteActual = null;
             }
         } else {
@@ -89,4 +97,15 @@ public class Caja {
     }
 
     public int getTiempoAbierta() { return tiempoAbierta; }
+
+    public boolean estaLlena() {
+        // En modo pandemia: máximo 2 clientes (1 atendido + 1 en cola)
+        // En modo normal: máximo 5 clientes (1 atendido + 4 en cola)
+        int maxPermitido = 4; // Por defecto para modo normal
+        return getTamanioCola() >= maxPermitido;
+    }
+
+    public int getTiempoSimulacionGlobal() {
+        return tiempoSimulacionGlobal;
+    }
 }

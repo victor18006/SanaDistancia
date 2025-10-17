@@ -40,7 +40,7 @@ public class GUI extends JFrame {
 
         JPanel panelControles = crearPanelControles();
 
-        areaEstadisticas = new JTextArea(10, 50);
+        areaEstadisticas = new JTextArea(15, 50);
         areaEstadisticas.setEditable(false);
         areaEstadisticas.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane scrollEstadisticas = new JScrollPane(areaEstadisticas);
@@ -162,40 +162,40 @@ public class GUI extends JFrame {
             stats.append("Tiempo: ").append(simPandemia.getTiempoActual()).append("/").append(simPandemia.getTiempoSimulacion()).append(" min\n");
             stats.append("Clientes en fila única: ").append(simPandemia.getFilaUnica().size()).append("\n");
             stats.append("Clientes atendidos: ").append(simPandemia.getClientesAtendidosTotal()).append("\n");
+            stats.append("Cajas abiertas: ").append(contarCajasAbiertas(simPandemia.getCajas())).append("/12\n");
 
             if (simPandemia.getClientesAtendidosTotal() > 0) {
-                stats.append("Tiempo espera promedio: ")
-                        .append(String.format("%.1f", (double)simPandemia.getTiempoEsperaTotal() / simPandemia.getClientesAtendidosTotal()))
-                        .append(" min\n");
+                double tiempoPromedio = (double)simPandemia.getTiempoEsperaTotal() / simPandemia.getClientesAtendidosTotal();
+                stats.append("Tiempo espera promedio: ").append(String.format("%.1f", tiempoPromedio)).append(" min\n");
             }
 
-            stats.append("Cajas abiertas: ");
-            for (Caja caja : simPandemia.getCajas()) {
-                if (caja.isAbierta()) {
-                    stats.append(caja.getId()).append(" ");
-                }
-            }
+            stats.append("\nESTADÍSTICAS DETALLADAS POR CAJA:\n");
+            stats.append(simPandemia.getEstadisticasDetalladas());
         } else {
             stats.append("MODO NORMAL\n");
             stats.append("Tiempo: ").append(simNormal.getTiempoActual()).append("/").append(simNormal.getTiempoSimulacion()).append(" min\n");
             stats.append("Clientes en sistema: ").append(simNormal.getClientesEnSistema().size()).append("\n");
             stats.append("Clientes atendidos: ").append(simNormal.getClientesAtendidosTotal()).append("\n");
+            stats.append("Cajas abiertas: ").append(contarCajasAbiertas(simNormal.getCajas())).append("/12\n");
 
             if (simNormal.getClientesAtendidosTotal() > 0) {
-                stats.append("Tiempo espera promedio: ")
-                        .append(String.format("%.1f", (double)simNormal.getTiempoEsperaTotal() / simNormal.getClientesAtendidosTotal()))
-                        .append(" min\n");
+                double tiempoPromedio = (double)simNormal.getTiempoEsperaTotal() / simNormal.getClientesAtendidosTotal();
+                stats.append("Tiempo espera promedio: ").append(String.format("%.1f", tiempoPromedio)).append(" min\n");
             }
 
-            stats.append("Cajas abiertas: ");
-            for (Caja caja : simNormal.getCajas()) {
-                if (caja.isAbierta()) {
-                    stats.append(caja.getId()).append(" ");
-                }
-            }
+            stats.append("\nESTADÍSTICAS DETALLADAS POR CAJA\n");
+            stats.append(simNormal.getEstadisticasDetalladas());
         }
 
         areaEstadisticas.setText(stats.toString());
+    }
+
+    private int contarCajasAbiertas(java.util.List<Caja> cajas) {
+        int count = 0;
+        for (Caja caja : cajas) {
+            if (caja.isAbierta()) count++;
+        }
+        return count;
     }
 
     @Override
@@ -215,160 +215,5 @@ public class GUI extends JFrame {
             }
             new GUI().setVisible(true);
         });
-    }
-}
-
-class PanelSimulacion extends JPanel {
-    private SimulacionBase simulacion;
-    private boolean esPandemia;
-
-    public PanelSimulacion(SimulacionBase simulacion, boolean esPandemia) {
-        this.simulacion = simulacion;
-        this.esPandemia = esPandemia;
-        setPreferredSize(new Dimension(1150, 500));
-        setBackground(new Color(240, 240, 240));
-    }
-
-    public void setSimulacion(SimulacionBase simulacion) {
-        this.simulacion = simulacion;
-        repaint();
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        if (simulacion != null) {
-            if (esPandemia) {
-                dibujarSimulacionPandemia(g2d);
-            } else {
-                dibujarSimulacionNormal(g2d);
-            }
-        }
-    }
-
-    private void dibujarSimulacionPandemia(Graphics2D g) {
-        SimulacionPandemia sim = (SimulacionPandemia) simulacion;
-
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Arial", Font.BOLD, 16));
-        g.drawString("MODO PANDEMIA - FILA ÚNICA", 20, 30);
-
-        g.setColor(Color.DARK_GRAY);
-        g.drawString("Fila Única (" + sim.getFilaUnica().size() + " clientes):", 20, 60);
-
-        int xFila = 20;
-        int yFila = 80;
-        int clienteIndex = 0;
-
-        for (Cliente cliente : sim.getFilaUnica()) {
-            dibujarCliente(g, cliente, xFila + (clienteIndex % 10) * 40, yFila + (clienteIndex / 10) * 30);
-            clienteIndex++;
-        }
-
-        for (Caja caja : sim.getCajas()) {
-            dibujarCaja(g, caja);
-        }
-    }
-
-    private void dibujarSimulacionNormal(Graphics2D g) {
-        SimulacionNormal sim = (SimulacionNormal) simulacion;
-
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Arial", Font.BOLD, 16));
-        g.drawString("MODO NORMAL - MÚLTIPLES FILAS", 20, 30);
-
-        g.drawString("Clientes buscando caja: " + sim.getClientesEnSistema().size(), 20, 60);
-
-        int xCliente = 20;
-        int yCliente = 80;
-        int clienteIndex = 0;
-
-        for (Cliente cliente : sim.getClientesEnSistema()) {
-            if (cliente.getEstado() == Cliente.EstadoCliente.ESPERANDO_FILA) {
-                dibujarCliente(g, cliente, xCliente + (clienteIndex % 10) * 40, yCliente + (clienteIndex / 10) * 30);
-                clienteIndex++;
-            }
-        }
-
-        for (Caja caja : sim.getCajas()) {
-            dibujarCaja(g, caja);
-        }
-    }
-
-    private void dibujarCaja(Graphics2D g, Caja caja) {
-        int x = caja.getX();
-        int y = caja.getY();
-
-        if (caja.isAbierta()) {
-            g.setColor(Color.GREEN);
-            g.fillRect(x, y, 90, 60);
-            g.setColor(Color.BLACK);
-            g.drawRect(x, y, 90, 60);
-
-            g.setFont(new Font("Arial", Font.BOLD, 12));
-            g.drawString("Caja " + caja.getId(), x + 20, y + 15);
-            g.drawString("Atendidos: " + caja.getClientesAtendidos(), x + 5, y + 30);
-
-            if (caja.getClienteActual() != null) {
-                dibujarCliente(g, caja.getClienteActual(), x + 25, y - 30);
-
-                int progreso = (int)((1.0 - (double)caja.getClienteActual().getTiempoRestanteServicio() /
-                        caja.getClienteActual().getTiempoServicio()) * 50);
-                g.setColor(Color.BLUE);
-                g.fillRect(x + 15, y + 40, progreso, 5);
-            }
-
-            int xCola = x + 90;
-            int yCola = y;
-            int clienteIndex = 0;
-
-            for (Cliente cliente : caja.getCola()) {
-                dibujarCliente(g, cliente, xCola, yCola + clienteIndex * 25);
-                clienteIndex++;
-            }
-
-            g.setColor(Color.BLACK);
-            g.setFont(new Font("Arial", Font.PLAIN, 10));
-            g.drawString("Cola: " + caja.getTamanioCola(), xCola, yCola - 5);
-        } else {
-            g.setColor(Color.LIGHT_GRAY);
-            g.fillRect(x, y, 90, 60);
-            g.setColor(Color.GRAY);
-            g.drawRect(x, y, 90, 60);
-            g.setFont(new Font("Arial", Font.BOLD, 12));
-            g.drawString("Caja " + caja.getId(), x + 20, y + 15);
-            g.drawString("CERRADA", x + 15, y + 35);
-        }
-    }
-
-    private void dibujarCliente(Graphics2D g, Cliente cliente, int x, int y) {
-        Color color = cliente.getColor();
-
-        g.setColor(color);
-        g.fillOval(x, y, 20, 20);
-        g.setColor(Color.BLACK);
-        g.drawOval(x, y, 20, 20);
-
-        g.setFont(new Font("Arial", Font.BOLD, 8));
-        g.drawString(String.valueOf(cliente.getId()), x + 6, y + 13);
-
-        switch (cliente.getEstado()) {
-            case ESPERANDO_FILA:
-                g.setColor(Color.ORANGE);
-                break;
-            case ESPERANDO_CAJA:
-                g.setColor(Color.YELLOW);
-                break;
-            case SIENDO_ATENDIDO:
-                g.setColor(Color.GREEN);
-                break;
-            case TERMINADO:
-                g.setColor(Color.RED);
-                break;
-        }
-        g.fillRect(x + 15, y + 15, 5, 5);
     }
 }
