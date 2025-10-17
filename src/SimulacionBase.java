@@ -15,14 +15,14 @@ public abstract class SimulacionBase {
     protected boolean pausada;
     protected boolean terminada;
 
-    // NUEVO: Control de tiempo entre llegadas con tiempo REAL
+    // Control de tiempo entre llegadas con tiempo REAL
     protected int tiempoUltimaLlegada;
     protected int tiempoEntreLlegadas;
 
     public SimulacionBase() {
         this.cajas = new ArrayList<>();
         this.colaSalida = new LinkedList<>(); // Inicializar cola de salida
-        this.tiempoSimulacion = 200;
+        this.tiempoSimulacion = 600;
         this.tiempoActual = 0;
         this.clientesAtendidosTotal = 0;
         this.tiempoEsperaTotal = 0;

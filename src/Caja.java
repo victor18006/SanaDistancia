@@ -11,6 +11,9 @@ public class Caja {
     private int x, y;
     private int tiempoSimulacionGlobal;
     private int tiempoAbierta;
+    // Nuevos campos para estadísticas
+    private int tiempoEsperaTotal;
+    private int tiempoServicioTotal;
 
     public Caja(int id, int x, int y) {
         this.id = id;
@@ -23,6 +26,8 @@ public class Caja {
         this.y = y;
         this.tiempoSimulacionGlobal = 0;
         this.tiempoAbierta = 0;
+        this.tiempoEsperaTotal = 0;
+        this.tiempoServicioTotal = 0;
     }
 
     public void setTiempoSimulacionGlobal(int tiempo) {
@@ -40,6 +45,10 @@ public class Caja {
             clienteActual.setTiempoInicioServicio(tiempoSimulacionGlobal);
             clienteActual.setEstado(Cliente.EstadoCliente.SIENDO_ATENDIDO);
             clientesAtendidos++;
+
+            // Acumular tiempo de espera del cliente
+            int tiempoEsperaCliente = tiempoSimulacionGlobal - clienteActual.getTiempoLlegada();
+            tiempoEsperaTotal += tiempoEsperaCliente;
         }
     }
 
@@ -56,6 +65,9 @@ public class Caja {
             if (tiempoTranscurrido >= clienteActual.getTiempoServicio()) {
                 clienteActual.setEstado(Cliente.EstadoCliente.TERMINADO);
                 clienteActual.setTiempoSalida(tiempoSimulacionGlobal); // Registrar tiempo de salida
+
+                // Acumular tiempo de servicio del cliente
+                tiempoServicioTotal += clienteActual.getTiempoServicio();
             }
 
             // Si terminó, limpiar cliente actual
@@ -108,5 +120,24 @@ public class Caja {
 
     public int getTiempoSimulacionGlobal() {
         return tiempoSimulacionGlobal;
+    }
+
+    // Nuevos métodos para estadísticas
+    public double getTiempoEsperaPromedio() {
+        if (clientesAtendidos == 0) return 0;
+        return (double) tiempoEsperaTotal / clientesAtendidos;
+    }
+
+    public double getTiempoServicioPromedio() {
+        if (clientesAtendidos == 0) return 0;
+        return (double) tiempoServicioTotal / clientesAtendidos;
+    }
+
+    public int getTiempoEsperaTotal() {
+        return tiempoEsperaTotal;
+    }
+
+    public int getTiempoServicioTotal() {
+        return tiempoServicioTotal;
     }
 }

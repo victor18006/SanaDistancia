@@ -12,9 +12,10 @@ public class SimulacionPandemia extends SimulacionBase {
         this.filaUnica = new LinkedList<>();
         this.siguienteIdCliente = 1;
 
+        // MOVER CAJAS 20 PIXELES HACIA ARRIBA (150 -> 130)
         for (int i = 0; i < 12; i++) {
             int x = 50 + (i % 6) * 180;
-            int y = 150 + (i / 6) * 120;
+            int y = 130 + (i / 6) * 120;  // Cambiado de 150 a 130
             cajas.add(new Caja(i + 1, x, y));
         }
 
@@ -105,8 +106,9 @@ public class SimulacionPandemia extends SimulacionBase {
                     .append(": ").append(caja.isAbierta() ? "ABIERTA" : "CERRADA")
                     .append(" | Atendidos: ").append(caja.getClientesAtendidos())
                     .append(" | Cola: ").append(caja.getTamanioCola())
-                    //.append(" | Ocioso: ").append(caja.getTiempoOcioso()).append(" min")
-                    .append(" | Tiempo abierta: ").append(caja.getTiempoAbierta()).append(" min\n");
+                    .append(" | Tiempo abierta: ").append(caja.getTiempoAbierta()).append(" min")
+                    .append(" | Espera prom: ").append(String.format("%.1f", caja.getTiempoEsperaPromedio())).append(" min")
+                    .append(" | Pago prom: ").append(String.format("%.1f", caja.getTiempoServicioPromedio())).append(" min\n");
         }
 
         return stats.toString();

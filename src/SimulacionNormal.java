@@ -10,10 +10,10 @@ public class SimulacionNormal extends SimulacionBase {
         this.siguienteIdCliente = 1;
         this.clientesEnSistema = new ArrayList<>();
 
-        // Configurar 12 cajas en 2 filas de 6 cajas cada una
+        // Configurar 12 cajas en 2 filas de 6 cajas cada una - MOVIDAS 20 PIXELES ARRIBA
         for (int i = 0; i < 12; i++) {
             int x = 50 + (i % 6) * 180;  // 6 cajas por fila
-            int y = 150 + (i / 6) * 120;  // 2 filas
+            int y = 130 + (i / 6) * 120;  // 2 filas (150 -> 130)
             cajas.add(new Caja(i + 1, x, y));
         }
 
@@ -119,8 +119,9 @@ public class SimulacionNormal extends SimulacionBase {
                     .append(": ").append(caja.isAbierta() ? "ABIERTA" : "CERRADA")
                     .append(" | Atendidos: ").append(caja.getClientesAtendidos())
                     .append(" | Cola: ").append(caja.getTamanioCola())
-                    //.append(" | Ocioso: ").append(caja.getTiempoOcioso()).append(" min")
-                    .append(" | Tiempo abierta: ").append(caja.getTiempoAbierta()).append(" min\n");
+                    .append(" | Tiempo abierta: ").append(caja.getTiempoAbierta()).append(" min")
+                    .append(" | Espera promedio: ").append(String.format("%.1f", caja.getTiempoEsperaPromedio())).append(" min")
+                    .append(" | Pago promedio: ").append(String.format("%.1f", caja.getTiempoServicioPromedio())).append(" min\n");
         }
 
         return stats.toString();
