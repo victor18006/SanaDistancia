@@ -7,11 +7,12 @@ public class Cliente {
     private int tiempoServicio;
     private int tiempoEspera;
     private int tiempoInicioServicio;
+    private int tiempoSalida; // Nuevo: tiempo cuando terminó de ser atendido
     private Color color;
     private EstadoCliente estado;
 
     public enum EstadoCliente {
-        ESPERANDO_FILA, ESPERANDO_CAJA, SIENDO_ATENDIDO, TERMINADO
+        ESPERANDO_FILA, ESPERANDO_CAJA, SIENDO_ATENDIDO, TERMINADO, EN_SALIDA
     }
 
     public Cliente(int id, int tiempoActual) {
@@ -20,6 +21,7 @@ public class Cliente {
         this.tiempoServicio = generarTiempoServicio();
         this.tiempoEspera = 0;
         this.tiempoInicioServicio = -1;
+        this.tiempoSalida = -1;
         this.estado = EstadoCliente.ESPERANDO_FILA;
         this.color = generarColorAleatorio();
     }
@@ -34,8 +36,6 @@ public class Cliente {
         return new Color(rand.nextInt(200) + 55, rand.nextInt(200) + 55, rand.nextInt(200) + 55);
     }
 
-    // ⚠️ ELIMINADO el método actualizar() - El control del tiempo lo hace la Caja
-
     public int getId() { return id; }
     public int getTiempoLlegada() { return tiempoLlegada; }
     public int getTiempoServicio() { return tiempoServicio; }
@@ -45,6 +45,8 @@ public class Cliente {
     public void setTiempoInicioServicio(int tiempoInicioServicio) {
         this.tiempoInicioServicio = tiempoInicioServicio;
     }
+    public int getTiempoSalida() { return tiempoSalida; }
+    public void setTiempoSalida(int tiempoSalida) { this.tiempoSalida = tiempoSalida; }
     public Color getColor() { return color; }
     public EstadoCliente getEstado() { return estado; }
     public void setEstado(EstadoCliente estado) { this.estado = estado; }

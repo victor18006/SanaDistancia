@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PanelSimulacion extends JPanel {
@@ -40,12 +41,10 @@ public class PanelSimulacion extends JPanel {
         int xSalida = 1200;
         int ySalida = 150;
 
-        /*g.setColor(new Color(84, 26, 14));
-        g.fillRect(xSalida, ySalida, 120, 250);*/
         g.setColor(Color.blue);
         g.drawRect(xSalida, ySalida, 120, 180);
 
-        g.setFont(new Font("Arial", Font.BOLD, 16));
+        g.setFont(new Font("Arial", Font.BOLD, 15));
         g.drawString("SALIDA", xSalida + 35, ySalida - 10);
 
         g.setColor(Color.BLACK);
@@ -61,17 +60,14 @@ public class PanelSimulacion extends JPanel {
         for (int i = 0; i < maxClientesMostrar; i++) {
             Cliente cliente = clientesTerminados.get(clientesTerminados.size() - 1 - i);
             int xCliente = xSalida + 10 + (i % 3) * 35;
-            int yCliente = ySalida + 40 + (i / 3) * 30;
+            int yCliente = ySalida + 80 + (i / 3) * 30;
             dibujarClienteSalida(g, cliente, xCliente, yCliente);
         }
     }
 
     private List<Cliente> obtenerClientesTerminados() {
-        if (esPandemia) {
-            return ((SimulacionPandemia) simulacion).getClientesTerminados();
-        } else {
-            return ((SimulacionNormal) simulacion).getClientesTerminados();
-        }
+        // Ahora usa la cola de salida de SimulacionBase
+        return new ArrayList<>(simulacion.getColaSalida());
     }
 
     private void dibujarClienteSalida(Graphics2D g, Cliente cliente, int x, int y) {
@@ -223,6 +219,7 @@ public class PanelSimulacion extends JPanel {
                 g.setColor(Color.GREEN);
                 break;
             case TERMINADO:
+            case EN_SALIDA:
                 g.setColor(Color.RED);
                 break;
         }

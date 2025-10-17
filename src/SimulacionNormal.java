@@ -46,9 +46,14 @@ public class SimulacionNormal extends SimulacionBase {
                 caja.actualizar();
                 if (caja.getClienteActual() != null &&
                         caja.getClienteActual().getEstado() == Cliente.EstadoCliente.TERMINADO) {
+                    // En lugar de eliminar, mover a la cola de salida
+                    Cliente clienteTerminado = caja.getClienteActual();
+                    clienteTerminado.setEstado(Cliente.EstadoCliente.EN_SALIDA);
+                    colaSalida.add(clienteTerminado); // Agregar a cola de salida
                     clientesAtendidosTotal++;
-                    tiempoEsperaTotal += caja.getClienteActual().getTiempoEspera();
-                    clientesEnSistema.remove(caja.getClienteActual());
+                    tiempoEsperaTotal += clienteTerminado.getTiempoEspera();
+                    clientesEnSistema.remove(clienteTerminado);
+                    caja.setClienteActual(null);
                 }
             }
         }
@@ -63,6 +68,9 @@ public class SimulacionNormal extends SimulacionBase {
         for (Cliente cliente : clientesSinCaja) {
             asignarClienteACaja(cliente);
         }
+
+        // Actualizar cola de salida (remover clientes que llevan 1 minuto)
+        actualizarColaSalida();
 
         abrirCajaSiEsNecesario();
         cerrarCajasOciosas();
@@ -111,7 +119,7 @@ public class SimulacionNormal extends SimulacionBase {
                     .append(": ").append(caja.isAbierta() ? "ABIERTA" : "CERRADA")
                     .append(" | Atendidos: ").append(caja.getClientesAtendidos())
                     .append(" | Cola: ").append(caja.getTamanioCola())
-                    .append(" | Ocioso: ").append(caja.getTiempoOcioso()).append(" min")
+                    //.append(" | Ocioso: ").append(caja.getTiempoOcioso()).append(" min")
                     .append(" | Tiempo abierta: ").append(caja.getTiempoAbierta()).append(" min\n");
         }
 
@@ -119,7 +127,7 @@ public class SimulacionNormal extends SimulacionBase {
     }
 
     public List<Cliente> getClientesTerminados() {
-        List<Cliente> terminados = new ArrayList<>();
-        return terminados;
+        // Ahora devolvemos la cola de salida en lugar de lista vacía
+        return new ArrayList<>(colaSalida);
     }
 }

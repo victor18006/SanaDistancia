@@ -105,7 +105,7 @@ public class GUI extends JFrame {
                         (tabbedPane.getSelectedIndex() == 1 && simNormal.isTerminada())) {
                     detenerSimulacion();
                 }
-            }, 0, 100, TimeUnit.MILLISECONDS);
+            }, 0, 300, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -158,32 +158,32 @@ public class GUI extends JFrame {
         StringBuilder stats = new StringBuilder();
 
         if (tabbedPane.getSelectedIndex() == 0) {
-            stats.append("MODO PANDEMIA\n");
-            stats.append("Tiempo: ").append(simPandemia.getTiempoActual()).append("/").append(simPandemia.getTiempoSimulacion()).append(" min\n");
-            stats.append("Clientes en fila única: ").append(simPandemia.getFilaUnica().size()).append("\n");
-            stats.append("Clientes atendidos: ").append(simPandemia.getClientesAtendidosTotal()).append("\n");
-            stats.append("Cajas abiertas: ").append(contarCajasAbiertas(simPandemia.getCajas())).append("/12\n");
+            //stats.append("MODO PANDEMIA\n");
+            //stats.append("Tiempo: ").append(simPandemia.getTiempoActual()).append("/").append(simPandemia.getTiempoSimulacion()).append(" min\n");
+            //stats.append("Clientes en fila única: ").append(simPandemia.getFilaUnica().size()).append("\n");
+            //stats.append("Clientes atendidos: ").append(simPandemia.getClientesAtendidosTotal()).append("\n");
+            //stats.append("Cajas abiertas: ").append(contarCajasAbiertas(simPandemia.getCajas())).append("/12\n");
 
             if (simPandemia.getClientesAtendidosTotal() > 0) {
                 double tiempoPromedio = (double)simPandemia.getTiempoEsperaTotal() / simPandemia.getClientesAtendidosTotal();
-                stats.append("Tiempo espera promedio: ").append(String.format("%.1f", tiempoPromedio)).append(" min\n");
+                //stats.append("Tiempo espera promedio: ").append(String.format("%.1f", tiempoPromedio)).append(" min\n");
             }
 
-            stats.append("\nESTADÍSTICAS DETALLADAS POR CAJA:\n");
+            stats.append("ESTADÍSTICAS DETALLADAS POR CAJA:\n");
             stats.append(simPandemia.getEstadisticasDetalladas());
         } else {
-            stats.append("MODO NORMAL\n");
-            stats.append("Tiempo: ").append(simNormal.getTiempoActual()).append("/").append(simNormal.getTiempoSimulacion()).append(" min\n");
-            stats.append("Clientes en sistema: ").append(simNormal.getClientesEnSistema().size()).append("\n");
-            stats.append("Clientes atendidos: ").append(simNormal.getClientesAtendidosTotal()).append("\n");
-            stats.append("Cajas abiertas: ").append(contarCajasAbiertas(simNormal.getCajas())).append("/12\n");
+            //stats.append("MODO NORMAL\n");
+            //stats.append("Tiempo: ").append(simNormal.getTiempoActual()).append("/").append(simNormal.getTiempoSimulacion()).append(" min\n");
+            //stats.append("Clientes en sistema: ").append(simNormal.getClientesEnSistema().size()).append("\n");
+            //stats.append("Clientes atendidos: ").append(simNormal.getClientesAtendidosTotal()).append("\n");
+            //stats.append("Cajas abiertas: ").append(contarCajasAbiertas(simNormal.getCajas())).append("/12\n");
 
             if (simNormal.getClientesAtendidosTotal() > 0) {
                 double tiempoPromedio = (double)simNormal.getTiempoEsperaTotal() / simNormal.getClientesAtendidosTotal();
-                stats.append("Tiempo espera promedio: ").append(String.format("%.1f", tiempoPromedio)).append(" min\n");
+                //stats.append("Tiempo espera promedio: ").append(String.format("%.1f", tiempoPromedio)).append(" min\n");
             }
 
-            stats.append("\nESTADÍSTICAS DETALLADAS POR CAJA\n");
+            stats.append("ESTADÍSTICAS DETALLADAS POR CAJA\n");
             stats.append(simNormal.getEstadisticasDetalladas());
         }
 

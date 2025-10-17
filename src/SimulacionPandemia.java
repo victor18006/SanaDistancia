@@ -49,12 +49,19 @@ public class SimulacionPandemia extends SimulacionBase {
                 caja.actualizar();
                 if (caja.getClienteActual() != null &&
                         caja.getClienteActual().getEstado() == Cliente.EstadoCliente.TERMINADO) {
+                    // En lugar de eliminar, mover a la cola de salida
+                    Cliente clienteTerminado = caja.getClienteActual();
+                    clienteTerminado.setEstado(Cliente.EstadoCliente.EN_SALIDA);
+                    colaSalida.add(clienteTerminado); // Agregar a cola de salida
                     clientesAtendidosTotal++;
-                    tiempoEsperaTotal += caja.getClienteActual().getTiempoEspera();
+                    tiempoEsperaTotal += clienteTerminado.getTiempoEspera();
                     caja.setClienteActual(null);
                 }
             }
         }
+
+        // Actualizar cola de salida (remover clientes que llevan 1 minuto)
+        actualizarColaSalida();
 
         abrirCajaSiEsNecesario();
         cerrarCajasOciosas();
@@ -98,7 +105,7 @@ public class SimulacionPandemia extends SimulacionBase {
                     .append(": ").append(caja.isAbierta() ? "ABIERTA" : "CERRADA")
                     .append(" | Atendidos: ").append(caja.getClientesAtendidos())
                     .append(" | Cola: ").append(caja.getTamanioCola())
-                    .append(" | Ocioso: ").append(caja.getTiempoOcioso()).append(" min")
+                    //.append(" | Ocioso: ").append(caja.getTiempoOcioso()).append(" min")
                     .append(" | Tiempo abierta: ").append(caja.getTiempoAbierta()).append(" min\n");
         }
 
@@ -106,9 +113,7 @@ public class SimulacionPandemia extends SimulacionBase {
     }
 
     public List<Cliente> getClientesTerminados() {
-        List<Cliente> terminados = new ArrayList<>();
-        // En modo pandemia, no hay una lista específica de clientes terminados
-        // Podemos devolver una lista vacía o implementar lógica si es necesario
-        return terminados;
+        // Ahora devolvemos la cola de salida en lugar de lista vacía
+        return new ArrayList<>(colaSalida);
     }
 }

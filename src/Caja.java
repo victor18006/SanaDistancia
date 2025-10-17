@@ -55,11 +55,12 @@ public class Caja {
             // Verificar si ya terminó de pagar (tiempo REAL)
             if (tiempoTranscurrido >= clienteActual.getTiempoServicio()) {
                 clienteActual.setEstado(Cliente.EstadoCliente.TERMINADO);
+                clienteActual.setTiempoSalida(tiempoSimulacionGlobal); // Registrar tiempo de salida
             }
 
             // Si terminó, limpiar cliente actual
             if (clienteActual.getEstado() == Cliente.EstadoCliente.TERMINADO) {
-                clienteActual = null;
+                //clienteActual = null;
             }
         } else {
             tiempoOcioso++;

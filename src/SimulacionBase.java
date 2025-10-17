@@ -1,9 +1,12 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 
 public abstract class SimulacionBase {
     protected List<Caja> cajas;
+    protected Queue<Cliente> colaSalida; // Nueva cola para clientes en salida
     protected int tiempoSimulacion;
     protected int tiempoActual;
     protected int clientesAtendidosTotal;
@@ -18,7 +21,8 @@ public abstract class SimulacionBase {
 
     public SimulacionBase() {
         this.cajas = new ArrayList<>();
-        this.tiempoSimulacion = 600;
+        this.colaSalida = new LinkedList<>(); // Inicializar cola de salida
+        this.tiempoSimulacion = 200;
         this.tiempoActual = 0;
         this.clientesAtendidosTotal = 0;
         this.tiempoEsperaTotal = 0;
@@ -48,6 +52,20 @@ public abstract class SimulacionBase {
     protected void programarProximaLlegada() {
         tiempoUltimaLlegada = tiempoActual;
         tiempoEntreLlegadas = generarTiempoEntreLlegadas();
+    }
+
+    // Nuevo método para gestionar la cola de salida
+    protected void actualizarColaSalida() {
+        // Remover clientes que llevan más de 1 minuto en la salida
+        Queue<Cliente> nuevaCola = new LinkedList<>();
+        for (Cliente cliente : colaSalida) {
+            int tiempoEnSalida = tiempoActual - cliente.getTiempoSalida();
+            if (tiempoEnSalida < 1) { // Mantener en salida por 1 minuto
+                nuevaCola.add(cliente);
+            }
+            // Los que tienen 1 minuto o más simplemente no se añaden (desaparecen)
+        }
+        colaSalida = nuevaCola;
     }
 
     protected void abrirCajaSiEsNecesario() {
@@ -101,6 +119,7 @@ public abstract class SimulacionBase {
     public int getTiempoActual() { return tiempoActual; }
     public int getTiempoSimulacion() { return tiempoSimulacion; }
     public List<Caja> getCajas() { return cajas; }
+    public Queue<Cliente> getColaSalida() { return colaSalida; } // Nuevo getter
     public int getClientesAtendidosTotal() { return clientesAtendidosTotal; }
     public int getTiempoEsperaTotal() { return tiempoEsperaTotal; }
 
