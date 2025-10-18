@@ -78,7 +78,7 @@ public abstract class SimulacionBase {
                 cajasAbiertas++;
                 // En modo pandemia: máximo 2 clientes por caja (1 siendo atendido + 1 en espera)
                 // En modo normal: máximo 4 clientes en cola
-                int maxPermitido = (this instanceof SimulacionPandemia) ? 1 : 4;
+                int maxPermitido = (this instanceof SimulacionPandemia) ? 4 : 4;
                 if (caja.getTamanioCola() < maxPermitido) {
                     todasLlenas = false;
                 }
