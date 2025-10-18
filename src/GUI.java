@@ -105,7 +105,7 @@ public class GUI extends JFrame {
                         (tabbedPane.getSelectedIndex() == 1 && simNormal.isTerminada())) {
                     detenerSimulacion();
                 }
-            }, 0, 500, TimeUnit.MILLISECONDS);
+            }, 0, 100, TimeUnit.MILLISECONDS);
         }
     }
 

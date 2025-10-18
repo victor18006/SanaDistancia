@@ -1,9 +1,6 @@
-import java.util.LinkedList;
-import java.util.Queue;
-
 public class Caja {
     private int id;
-    private Queue<Cliente> cola;
+    private Cola<Cliente> cola;
     private Cliente clienteActual;
     private int tiempoOcioso;
     private int clientesAtendidos;
@@ -17,7 +14,7 @@ public class Caja {
 
     public Caja(int id, int x, int y) {
         this.id = id;
-        this.cola = new LinkedList<>();
+        this.cola = new Cola<>();
         this.clienteActual = null;
         this.tiempoOcioso = 0;
         this.clientesAtendidos = 0;
@@ -40,7 +37,7 @@ public class Caja {
     }
 
     public void siguienteCliente() {
-        if (!cola.isEmpty() && clienteActual == null) {
+        if (!cola.estaVacia() && clienteActual == null) {
             clienteActual = cola.poll();
             clienteActual.setTiempoInicioServicio(tiempoSimulacionGlobal);
             clienteActual.setEstado(Cliente.EstadoCliente.SIENDO_ATENDIDO);
@@ -77,7 +74,7 @@ public class Caja {
         } else {
             tiempoOcioso++;
             // Tomar siguiente cliente si está disponible
-            if (!cola.isEmpty()) {
+            if (!cola.estaVacia()) {
                 siguienteCliente();
             }
         }
@@ -85,13 +82,13 @@ public class Caja {
 
     public boolean necesitaCerrarse() {
         return isAbierta() &&
-                getCola().isEmpty() &&
+                getCola().estaVacia() &&
                 getClienteActual() == null &&
                 getTiempoOcioso() > 30; // 30 minutos de inactividad
     }
 
     public int getId() { return id; }
-    public Queue<Cliente> getCola() { return cola; }
+    public Cola<Cliente> getCola() { return cola; }
     public Cliente getClienteActual() { return clienteActual; }
     public int getTiempoOcioso() { return tiempoOcioso; }
     public int getClientesAtendidos() { return clientesAtendidos; }

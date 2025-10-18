@@ -1,15 +1,13 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class SimulacionPandemia extends SimulacionBase {
-    private Queue<Cliente> filaUnica;
+    private Cola<Cliente> filaUnica; // Cambiado a nuestra Cola personalizada
     private int siguienteIdCliente;
 
     public SimulacionPandemia() {
         super();
-        this.filaUnica = new LinkedList<>();
+        this.filaUnica = new Cola<>();
         this.siguienteIdCliente = 1;
 
         // MOVER CAJAS 20 PIXELES HACIA ARRIBA (150 -> 130)
@@ -19,13 +17,13 @@ public class SimulacionPandemia extends SimulacionBase {
             cajas.add(new Caja(i + 1, x, y));
         }
 
-        cajas.get(random.nextInt(12)).setAbierta(true); // CORREGIDO: 6 cajas
+        cajas.get(random.nextInt(12)).setAbierta(true);
     }
 
     @Override
     public void ejecutarPaso() {
         if (pausada || terminada || tiempoActual >= tiempoSimulacion) {
-            if (filaUnica.isEmpty() && todasCajasVacias()) {
+            if (filaUnica.estaVacia() && todasCajasVacias()) {
                 terminada = true;
             }
             return;
@@ -69,7 +67,7 @@ public class SimulacionPandemia extends SimulacionBase {
 
         tiempoActual++;
 
-        if (tiempoActual >= tiempoSimulacion && filaUnica.isEmpty() && todasCajasVacias()) {
+        if (tiempoActual >= tiempoSimulacion && filaUnica.estaVacia() && todasCajasVacias()) {
             terminada = true;
         }
     }
@@ -79,11 +77,20 @@ public class SimulacionPandemia extends SimulacionBase {
         List<Cliente> clientesAsignables = new ArrayList<>();
 
         // Primero, identificar qué clientes han estado al menos 1 minuto en fila
-        for (Cliente cliente : filaUnica) {
+        Cola<Cliente> tempFila = new Cola<>();
+        while (!filaUnica.estaVacia()) {
+            Cliente cliente = filaUnica.poll();
             int tiempoEnFila = tiempoActual - cliente.getTiempoLlegada();
             if (tiempoEnFila >= 1) { // Mínimo 1 minuto en fila
                 clientesAsignables.add(cliente);
+            } else {
+                tempFila.add(cliente);
             }
+        }
+
+        // Restaurar clientes que no cumplen el tiempo mínimo
+        while (!tempFila.estaVacia()) {
+            filaUnica.add(tempFila.poll());
         }
 
         // Luego, asignar estos clientes a cajas disponibles
@@ -91,23 +98,27 @@ public class SimulacionPandemia extends SimulacionBase {
             // MODO PANDEMIA: Máximo 4 clientes en cola
             if (caja.isAbierta() && caja.getTamanioCola() < 4 && !clientesAsignables.isEmpty()) {
                 Cliente cliente = clientesAsignables.remove(0);
-                filaUnica.remove(cliente); // Remover de la fila única
                 caja.agregarCliente(cliente);
                 cliente.setTiempoEspera(tiempoActual - cliente.getTiempoLlegada());
             }
+        }
+
+        // Agregar los clientes no asignados de vuelta a la fila
+        for (Cliente cliente : clientesAsignables) {
+            filaUnica.add(cliente);
         }
     }
 
     private boolean todasCajasVacias() {
         for (Caja caja : cajas) {
-            if (caja.isAbierta() && (caja.getClienteActual() != null || !caja.getCola().isEmpty())) {
+            if (caja.isAbierta() && (caja.getClienteActual() != null || !caja.getCola().estaVacia())) {
                 return false;
             }
         }
         return true;
     }
 
-    public Queue<Cliente> getFilaUnica() { return filaUnica; }
+    public Cola<Cliente> getFilaUnica() { return filaUnica; }
 
     public String getEstadisticasDetalladas() {
         StringBuilder stats = new StringBuilder();
@@ -126,7 +137,21 @@ public class SimulacionPandemia extends SimulacionBase {
     }
 
     public List<Cliente> getClientesTerminados() {
-        // Ahora devolvemos la cola de salida en lugar de lista vacía
-        return new ArrayList<>(colaSalida);
+        // Convertir nuestra cola a lista
+        List<Cliente> lista = new ArrayList<>();
+        Cola<Cliente> temp = new Cola<>();
+
+        while (!colaSalida.estaVacia()) {
+            Cliente cliente = colaSalida.poll();
+            lista.add(cliente);
+            temp.add(cliente);
+        }
+
+        // Restaurar la cola original
+        while (!temp.estaVacia()) {
+            colaSalida.add(temp.poll());
+        }
+
+        return lista;
     }
 }

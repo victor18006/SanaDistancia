@@ -102,7 +102,7 @@ public class SimulacionNormal extends SimulacionBase {
 
     private boolean todasCajasVacias() {
         for (Caja caja : cajas) {
-            if (caja.isAbierta() && (caja.getClienteActual() != null || !caja.getCola().isEmpty())) {
+            if (caja.isAbierta() && (caja.getClienteActual() != null || !caja.getCola().estaVacia())) {
                 return false;
             }
         }
@@ -129,6 +129,7 @@ public class SimulacionNormal extends SimulacionBase {
 
     public List<Cliente> getClientesTerminados() {
         // Ahora devolvemos la cola de salida en lugar de lista vacía
-        return new ArrayList<>(colaSalida);
+        //return new ArrayList<>(colaSalida);
+        return colaSalida.toArrayList();
     }
 }

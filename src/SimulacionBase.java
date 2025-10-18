@@ -1,12 +1,10 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Random;
 
 public abstract class SimulacionBase {
     protected List<Caja> cajas;
-    protected Queue<Cliente> colaSalida; // Nueva cola para clientes en salida
+    protected Cola<Cliente> colaSalida; // Cambiado a nuestra Cola personalizada
     protected int tiempoSimulacion;
     protected int tiempoActual;
     protected int clientesAtendidosTotal;
@@ -21,7 +19,7 @@ public abstract class SimulacionBase {
 
     public SimulacionBase() {
         this.cajas = new ArrayList<>();
-        this.colaSalida = new LinkedList<>(); // Inicializar cola de salida
+        this.colaSalida = new Cola<>(); // Inicializar con nuestra Cola personalizada
         this.tiempoSimulacion = 600;
         this.tiempoActual = 0;
         this.clientesAtendidosTotal = 0;
@@ -57,8 +55,9 @@ public abstract class SimulacionBase {
     // Nuevo método para gestionar la cola de salida
     protected void actualizarColaSalida() {
         // Remover clientes que llevan más de 1 minuto en la salida
-        Queue<Cliente> nuevaCola = new LinkedList<>();
-        for (Cliente cliente : colaSalida) {
+        Cola<Cliente> nuevaCola = new Cola<>();
+        while (!colaSalida.estaVacia()) {
+            Cliente cliente = colaSalida.poll();
             int tiempoEnSalida = tiempoActual - cliente.getTiempoSalida();
             if (tiempoEnSalida < 1) { // Mantener en salida por 1 minuto
                 nuevaCola.add(cliente);
@@ -119,7 +118,7 @@ public abstract class SimulacionBase {
     public int getTiempoActual() { return tiempoActual; }
     public int getTiempoSimulacion() { return tiempoSimulacion; }
     public List<Caja> getCajas() { return cajas; }
-    public Queue<Cliente> getColaSalida() { return colaSalida; } // Nuevo getter
+    public Cola<Cliente> getColaSalida() { return colaSalida; } // Cambiado el tipo de retorno
     public int getClientesAtendidosTotal() { return clientesAtendidosTotal; }
     public int getTiempoEsperaTotal() { return tiempoEsperaTotal; }
 

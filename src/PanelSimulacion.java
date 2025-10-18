@@ -67,7 +67,8 @@ public class PanelSimulacion extends JPanel {
 
     private List<Cliente> obtenerClientesTerminados() {
         // Ahora usa la cola de salida de SimulacionBase
-        return new ArrayList<>(simulacion.getColaSalida());
+        //return new ArrayList<>(simulacion.getColaSalida());
+        return simulacion.getColaSalida().toArrayList();
     }
 
     private void dibujarClienteSalida(Graphics2D g, Cliente cliente, int x, int y) {
